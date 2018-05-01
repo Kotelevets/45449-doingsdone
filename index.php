@@ -5,12 +5,12 @@ $show_complete_tasks = rand(0, 1);
 $projects = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 // массив задач
 $tasks = [
-            ['task' => 'Собеседование в IT компании',     'completion_date' => '01.06.2018', 'category' => 'Работа',        'done' => 'Нет'], 
-            ['task' => 'Выполнить тестовое задание',      'completion_date' => '25.05.2018', 'category' => 'Работа',        'done' => 'Нет'], 
-            ['task' => 'Сделать задание первого раздела', 'completion_date' => '21.04.2018', 'category' => 'Учеба',         'done' => 'Да' ], 
-            ['task' => 'Встреча с другом',                'completion_date' => '22.04.2018', 'category' => 'Входящие',      'done' => 'Нет'], 
-            ['task' => 'Купить корм для кота',            'completion_date' => 'Нет',        'category' => 'Домашние дела', 'done' => 'Нет'], 
-            ['task' => 'Заказать пиццу',                  'completion_date' => 'Нет',        'category' => 'Домашние дела', 'done' => 'Нет']
+            ['task' => 'Собеседование в IT компании',     'completion_date' => '01.06.2018', 'project' => 'Работа',        'done' => False], 
+            ['task' => 'Выполнить тестовое задание',      'completion_date' => '25.05.2018', 'project' => 'Работа',        'done' => False], 
+            ['task' => 'Сделать задание первого раздела', 'completion_date' => '21.04.2018', 'project' => 'Учеба',         'done' => True ], 
+            ['task' => 'Встреча с другом',                'completion_date' => '22.04.2018', 'project' => 'Входящие',      'done' => False], 
+            ['task' => 'Купить корм для кота',            'completion_date' => 'Нет',        'project' => 'Домашние дела', 'done' => False], 
+            ['task' => 'Заказать пиццу',                  'completion_date' => 'Нет',        'project' => 'Домашние дела', 'done' => False]
          ];
 ?>
 <!DOCTYPE html>
@@ -99,7 +99,7 @@ $tasks = [
 
                 <table class="tasks">
                 <? foreach ($tasks as $item): ?>
-                    <tr class="tasks__item task <?= $item['done']==='Да'?'task--completed':'' ?>">
+                    <tr class="tasks__item task <?= $item['done']?'task--completed':'' ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
