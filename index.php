@@ -12,6 +12,17 @@ $tasks = [
             ['task' => 'Купить корм для кота',            'completion_date' => 'Нет',        'project' => 'Домашние дела', 'done' => False], 
             ['task' => 'Заказать пиццу',                  'completion_date' => 'Нет',        'project' => 'Домашние дела', 'done' => False]
          ];
+// функция подсчета задач
+function task_count($task_array, $project_name) {
+    if($project_name==='Все') {return count($task_array);}
+    else {
+        $count = 0;
+        foreach ($task_array as $item) {
+            if($item['project'] === $project_name) {$count+=1;}
+        }
+    return $count;    
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -62,7 +73,7 @@ $tasks = [
                     <? foreach ($projects as $key => $item): ?>    
                         <li class="main-navigation__list-item <?= $key===0?'main-navigation__list-item--active':'' ?>">
                             <a class="main-navigation__list-item-link" href="#"><?=$item?></a>
-                            <span class="main-navigation__list-item-count">24</span>
+                            <span class="main-navigation__list-item-count"><?=task_count($tasks, $item)?></span>
                         </li>
                     <? endforeach; ?>
                         
