@@ -20,14 +20,8 @@ function render_template($template_path, $data) {
         return '';
     } else {
         ob_start();
-
-        isset($data['tasks']) ? $tasks = $data['tasks'] : $tasks = [];
-        isset($data['projects']) ? $projects = $data['projects'] : $projects = [];
-        isset($data['title']) ? $title = $data['title'] : $title = '';
-        isset($data['content']) ? $content = $data['content'] : $content = [];
-        
+        extract($data);
         require_once($template_path);
-        $content = ob_get_clean();
-        return $content;
+        return ob_get_clean();
     }
 }
