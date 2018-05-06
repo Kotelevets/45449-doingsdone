@@ -23,7 +23,10 @@
 
                 <table class="tasks">
                 <?php foreach ($tasks as $item) : ?>
-                    <tr class="tasks__item task <?= $item['done'] ? 'task--completed' : '' ?>">
+                    <tr class="tasks__item task 
+                                <?= $item['done'] ? 'task--completed' : '' ?> 
+                                <?= task_near_finish($item['completion_date'], $item['done']) ? 'task--important' : '' ?>
+                              ">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">

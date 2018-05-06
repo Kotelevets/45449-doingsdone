@@ -25,3 +25,18 @@ function render_template($template_path, $data) {
         return ob_get_clean();
     }
 }
+
+// функция для определения задач, у которых <24 часа до завершения
+function task_near_finish($task_completion_date, $done = false) {
+   
+   date_default_timezone_set('Europe/Kiev');
+   
+   if (strtotime($task_completion_date.'00:00') && !$done) {
+       $date = getdate();
+       $hours_to_finish = floor((strtotime($task_completion_date.'00:00') - $date[0])/3600);
+       if ($hours_to_finish<24) {
+           return true;
+       }
+    }    
+    return false;
+}
