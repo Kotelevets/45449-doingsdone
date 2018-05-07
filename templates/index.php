@@ -38,7 +38,7 @@
                             <a class="download-link" href="#">Home.psd</a>
                         </td>
 
-                        <td class="task__date"><?= htmlspecialchars($item['completion_date']); ?></td>
+                        <td class="task__date"><?= (htmlspecialchars($item['completion_date']) != null) ? htmlspecialchars($item['completion_date']) : 'Нет'; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </table>
