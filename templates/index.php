@@ -25,7 +25,7 @@
                 <?php foreach ($tasks as $item) : ?>
                     <tr class="tasks__item task 
                                 <?= $item['done'] ? 'task--completed' : '' ?>
-                                <?= !$item['done'] && $item['completion_date'] != null && task_near_finish($item['completion_date']) ? 'task--important' : '' ?>
+                                <?= !$item['done'] && task_near_finish($item['completion_date']) ? 'task--important' : '' ?>
                               ">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
