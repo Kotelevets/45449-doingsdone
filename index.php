@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Europe/Kiev');
 require_once('functions.php');
 require_once('data.php');
 

@@ -22,11 +22,11 @@ $tasks = [
           'project' => 'Входящие',
           'done' => false],
          ['task' => 'Купить корм для кота',
-          'completion_date' => 'Нет',
+          'completion_date' => null,
           'project' => 'Домашние дела',
           'done' => false],
          ['task' => 'Заказать пиццу',
-          'completion_date' => 'Нет',
+          'completion_date' => null,
           'project' => 'Домашние дела',
           'done' => false]
          ];

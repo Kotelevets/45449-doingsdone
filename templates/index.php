@@ -23,7 +23,10 @@
 
                 <table class="tasks">
                 <?php foreach ($tasks as $item) : ?>
-                    <tr class="tasks__item task <?= $item['done'] ? 'task--completed' : '' ?>">
+                    <tr class="tasks__item task 
+                                <?= $item['done'] ? 'task--completed' : '' ?>
+                                <?= !$item['done'] && task_near_finish($item['completion_date']) ? 'task--important' : '' ?>
+                              ">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
@@ -35,7 +38,7 @@
                             <a class="download-link" href="#">Home.psd</a>
                         </td>
 
-                        <td class="task__date"><?= htmlspecialchars($item['completion_date']); ?></td>
+                        <td class="task__date"><?= (htmlspecialchars($item['completion_date']) != null) ? htmlspecialchars($item['completion_date']) : 'Нет'; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </table>

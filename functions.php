@@ -25,3 +25,14 @@ function render_template($template_path, $data) {
         return ob_get_clean();
     }
 }
+
+// функция для определения задач, у которых <24 часа до завершения
+function task_near_finish($task_completion_date) {
+    if ($task_completion_date != null) {
+        $hours_to_finish = floor((strtotime($task_completion_date.' 00:00') - time())/3600);
+        if ($hours_to_finish < 24) {
+            return true;
+        } 
+    }    
+    return false;
+}
