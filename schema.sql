@@ -5,39 +5,38 @@ CREATE DATABASE doingsdone
 USE doingsdone;
 
 CREATE TABLE users (
-   user_id int AUTO_INCREMENT PRIMARY KEY,
-   reg_date datetime,
-   email char(128),
-   name char(50),
+   id int AUTO_INCREMENT PRIMARY KEY,
+   reg_date datetime NOT NULL,
+   email char(128) NOT NULL,
+   user_name char(50),
    user_pass char(64),
    contacts text
 );
 
 CREATE TABLE projects (
-   project_id int AUTO_INCREMENT PRIMARY KEY,
-   project_name char(20),
-   user_id int
+   id int AUTO_INCREMENT PRIMARY KEY,
+   project_name char(20) NOT NULL,
+   user_id int NOT NULL,
+   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE tasks (
-   task_id int AUTO_INCREMENT PRIMARY KEY,
-   creation_date datetime, 
-   done_date datetime,
-   description char(60),
+   id int AUTO_INCREMENT PRIMARY KEY,
+   creation_date datetime NOT NULL, 
+   done_date datetime NULL DEFAULT NULL,
+   task_name char(60) NOT NULL,
    file_name char(255),
    completion_date datetime,
-   user_id int,
-   project_id int
+   user_id int NOT NULL,
+   project_id int NOT NULL,
+   FOREIGN KEY (user_id) REFERENCES users(id),
+   FOREIGN KEY (project_id) REFERENCES projects(id)
 );
 
-CREATE UNIQUE INDEX user_id ON users(user_id);
 CREATE UNIQUE INDEX email ON users(email);
-CREATE UNIQUE INDEX project_id ON projects(project_id);
-CREATE UNIQUE INDEX task_id ON tasks(task_id);
 
-CREATE INDEX u_mail ON users(email);
-CREATE INDEX u_pass ON users(user_pass);
+CREATE INDEX u_mailpass ON users(email, user_pass);
 CREATE INDEX p_user ON projects(user_id);
-CREATE INDEX t_description ON tasks(description);
+CREATE INDEX t_description ON tasks(task_name);
 CREATE INDEX t_completion ON tasks(completion_date);
 CREATE INDEX t_proj_user ON tasks(project_id, user_id);
