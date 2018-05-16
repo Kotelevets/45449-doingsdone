@@ -1,41 +1,41 @@
 USE doingsdone;
 
-INSERT INTO users 
-SET id = 1, reg_date = NOW(), email = 'kotya.aa@gmail.com', user_name = 'Александр', user_pass = md5('qwerty'), contacts = null;
-INSERT INTO users 
-SET id = 2, reg_date = NOW(), email = 'vasya@vasya.net', user_name = 'Василий', user_pass = md5('qwerty'), contacts = null;
+INSERT INTO users (id, reg_date, email, user_name, user_pass, contacts)
+VALUES (1, NOW(), 'kotya.aa@gmail.com', 'Александр', md5('qwerty'), null);
+INSERT INTO users (id, reg_date, email, user_name, user_pass, contacts)
+VALUES (2, NOW(), 'vasya@vasya.net', 'Василий', md5('qwerty'), null);
 
-INSERT INTO projects
-SET id = 1, project_name = 'Все', user_id = 1;
-INSERT INTO projects
-SET id = 2, project_name = 'Входящие', user_id = 1;
-INSERT INTO projects
-SET id = 3, project_name = 'Учеба', user_id = 1;
-INSERT INTO projects
-SET id = 4, project_name = 'Работа', user_id = 1;
-INSERT INTO projects
-SET id = 5, project_name = 'Домашние дела', user_id = 1;
-INSERT INTO projects
-SET id = 6, project_name = 'Авто', user_id = 1;
-INSERT INTO projects
-SET id = 7, project_name = 'Все', user_id = 2;
-INSERT INTO projects
-SET id = 8, project_name = 'Хобби', user_id = 2;
-INSERT INTO projects
-SET id = 9, project_name = 'Учеба', user_id = 2;
+INSERT INTO projects (id, project_name, user_id)
+VALUES (1, 'Все', 1);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (2, 'Входящие', 1);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (3, 'Учеба', 1);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (4, 'Работа', 1);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (5, 'Домашние дела', 1);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (6, 'Авто', 1);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (7, 'Все', 2);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (8, 'Хобби', 2);
+INSERT INTO projects (id, project_name, user_id)
+VALUES (9, 'Учеба', 2);
 
-INSERT INTO tasks
-SET id = 1, creation_date = NOW(), done_date = '2018-06-01', task_name = 'Собеседование в IT компании', file_name = 'Home.psd', completion_date = null, user_id = 1, project_id = 4;
-INSERT INTO tasks
-SET id = 2, creation_date = NOW(), done_date = '2018-05-25', task_name = 'Выполнить тестовое задание', file_name = 'Home.psd', completion_date = null, user_id = 1, project_id = 4;
-INSERT INTO tasks
-SET id = 3, creation_date = NOW(), done_date = '2018-04-21', task_name = 'Сделать задание первого раздела', file_name = 'Home.psd', completion_date = '2018-04-20', user_id = 1, project_id = 3;
-INSERT INTO tasks
-SET id = 4, creation_date = NOW(), done_date = '2018-04-22', task_name = 'Встреча с другом', file_name = 'Home.psd', completion_date = null, user_id = 1, project_id = 2;
-INSERT INTO tasks
-SET id = 5, creation_date = NOW(), done_date = null, task_name = 'Купить корм для кота', file_name = 'Home.psd', completion_date = null, user_id = 1, project_id = 5;
-INSERT INTO tasks
-SET id = 6, creation_date = NOW(), done_date = null, task_name = 'Заказать пиццу', file_name = 'Home.psd', completion_date = null, user_id = 1, project_id = 5;
+INSERT INTO tasks (id, creation_date, done_date, task_name, file_name, completion_date, user_id, project_id)
+VALUES (1, NOW(), '2018-06-01', 'Собеседование в IT компании', 'Home.psd', null, 1, 4);
+INSERT INTO tasks (id, creation_date, done_date, task_name, file_name, completion_date, user_id, project_id)
+VALUES (2, NOW(), '2018-05-25', 'Выполнить тестовое задание', 'Home.psd', null, 1, 4);
+INSERT INTO tasks (id, creation_date, done_date, task_name, file_name, completion_date, user_id, project_id)
+VALUES (3, NOW(), '2018-04-21', 'Сделать задание первого раздела', 'Home.psd', '2018-04-20', 1, 3);
+INSERT INTO tasks (id, creation_date, done_date, task_name, file_name, completion_date, user_id, project_id)
+VALUES (4, NOW(), '2018-04-22', 'Встреча с другом', 'Home.psd', null, 1, 2);
+INSERT INTO tasks (id, creation_date, done_date, task_name, file_name, completion_date, user_id, project_id)
+VALUES (5, NOW(), null, 'Купить корм для кота', 'Home.psd', null, 1, 5);
+INSERT INTO tasks (id, creation_date, done_date, task_name, file_name, completion_date, user_id, project_id)
+VALUES (6, NOW(), null, 'Заказать пиццу', 'Home.psd', null, 1, 5);
 
 -- получить список из всех проектов для одного пользователя
 SELECT * FROM projects
