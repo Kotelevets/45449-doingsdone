@@ -1,21 +1,4 @@
 <?php
-// функция подсчета задач
-function task_count($task_array, $project_name) {
-    // если $project_name = "Все" - считаем все задачи в массиве
-    if ($project_name === 'Все') {
-        return count($task_array);
-    } else {
-        $count = 0;
-        // для остальных значений считаем количество задач, для проекта из $project_name
-        foreach ($task_array as $item) {
-            if ($item['project_name'] === $project_name) {
-                $count += 1;
-            }
-        }
-        return $count;    
-    }
-}
-
 // функция-шаблонизатор
 function render_template($template_path, $data) {
     if (!file_exists($template_path)) {
