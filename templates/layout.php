@@ -46,9 +46,12 @@
                     <ul class="main-navigation__list">
                     
                     <?php foreach ($projects as $key => $item) : ?>    
-                       <li class="main-navigation__list-item <?= intval($item['id']) === $project_id ? 'main-navigation__list-item--active' : '' ?>">
+                        <li class="main-navigation__list-item 
+                            <?= intval($item['id'])   === $project_id &&  is_int($project_id) ? 'main-navigation__list-item--active' : '' ?>
+                            <?= $item['project_name'] === 'Все'       && !is_int($project_id) ? 'main-navigation__list-item--active' : '' ?>"
+                        >
                             <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($item['project_name']); ?></a>
-                            <span class="main-navigation__list-item-count"><?= $item['task_count']; ?></span>
+                            <span class="main-navigation__list-item-count"><?= task_count($tasks, $item['project_name']); ?></span>
                         </li>
                     <?php endforeach; ?>
                     
