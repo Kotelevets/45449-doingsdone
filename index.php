@@ -3,31 +3,32 @@
 date_default_timezone_set('Europe/Kiev');
 
 // выбор пользователя
-$user_id = 1;
+$user_id = 2;
 
-// выбор проекта (0 = 'Все')
-$project_id = 0;
+// выбор проекта
+$project_id = 6;
 
 // подключение к БД
 $connect = mysqli_connect("localhost", "root", "","doingsdone");
 
 // если подключение успешно делаем выборки, нет - выводим ошибку
-if ($connect == false) {
-    print("Ошибка подключения: ". mysqli_connect_error());
+if ($connect === false) {
+    require_once('pages/error.html');
+    exit();
 } else {
     // указание, какую кодировку использовать
     mysqli_set_charset($connect, "utf8");
 
     // выборка списка(массива) всех проектов текущего пользователя
     $sql = "SELECT 0 AS id, 'Все' AS project_name, count(*) AS task_count"
-          ."  FROM projects p JOIN tasks t ON p.id = t.project_id WHERE p.user_id = $user_id"
+          ."  FROM projects p JOIN tasks t ON p.id = t.project_id WHERE p.user_id = " . $user_id
           ." UNION "
           ."SELECT p.id, p.project_name, count(*) AS task_count"
-          ."  FROM projects p JOIN tasks t ON p.id = t.project_id WHERE p.user_id = $user_id GROUP BY p.id, p.project_name";
+          ."  FROM projects p JOIN tasks t ON p.id = t.project_id WHERE p.user_id = " . $user_id . " GROUP BY p.id, p.project_name";
     $result = mysqli_query($connect, $sql);
     if (!$result) {
-        $error = mysqli_error($con);
-        print("Ошибка MySQL: ". $error);
+        require_once('pages/error.html');
+        exit();
     }
     $projects = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
@@ -40,14 +41,14 @@ if ($connect == false) {
     if ($project_id === 0) {
         $cond = "";
     } else {
-        $cond = " and project_id = '" . $project_id . "'";
+        $cond = " and project_id = " . $project_id;
     }
     $sql = $sql . $cond;
     
     $result = mysqli_query($connect, $sql);
     if (!$result) {
-        $error = mysqli_error($con);
-        print("Ошибка MySQL: ". $error);
+        require_once('pages/error.html');
+        exit();
     }
     $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
