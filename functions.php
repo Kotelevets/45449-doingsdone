@@ -15,7 +15,7 @@ function task_count($task_array, $project_name) {
 }
 
 // функция-шаблонизатор
-function render_template($template_path, $data) {
+function render_template($template_path, $data = []) {
     if (!file_exists($template_path)) {
         return '';
     } else {

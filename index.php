@@ -2,6 +2,9 @@
 // выбор часового пояса
 date_default_timezone_set('Europe/Kiev');
 
+// подключаем файл с функциями
+require_once('functions.php');
+
 // выбор пользователя
 $user_id = 1;
 
@@ -9,11 +12,11 @@ $user_id = 1;
 $project_id = 4;
 
 // подключение к БД
-$connect = mysqli_connect("localhost", "root", "","doingsdone");
+$connect = mysqli_connect("localhost", "root", "", "doingsdone");
 
 // если подключение успешно делаем выборки, нет - выводим ошибку
 if ($connect === false) {
-    require_once('pages/error.html');
+    print(render_template('templates/error.php'));
     exit();
 } else {
     // указание, какую кодировку использовать
@@ -23,7 +26,7 @@ if ($connect === false) {
     $sql = "SELECT p.id, p.project_name FROM projects p WHERE p.user_id = " . $user_id;
     $result = mysqli_query($connect, $sql);
     if (!$result) {
-        require_once('pages/error.html');
+        print(render_template('templates/error.php'));
         exit();
     }
     $projects = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -36,7 +39,7 @@ if ($connect === false) {
            . (is_int($project_id) ? " and project_id = " . $project_id : "");
     $result = mysqli_query($connect, $sql);
     if (!$result) {
-        require_once('pages/error.html');
+        print(render_template('templates/error.php'));
         exit();
     }
     $tasks_cond = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -46,13 +49,11 @@ if ($connect === false) {
            ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user_id;
     $result = mysqli_query($connect, $sql);
     if (!$result) {
-        require_once('pages/error.html');
+        print(render_template('templates/error.php'));
         exit();
     }
     $tasks_all = mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
-
-require_once('functions.php');
 
 // получаем(рендерим) основные данные (отображаем список задач) для страницы,
 // передаем список задач и шаблон для основных данных
