@@ -24,21 +24,24 @@
                 <table class="tasks">
                 <?php foreach ($tasks as $item) : ?>
                     <tr class="tasks__item task 
-                                <?= $item['done'] ? 'task--completed' : '' ?>
-                                <?= !$item['done'] && task_near_finish($item['completion_date']) ? 'task--important' : '' ?>
+                                <?= $item['completion_date'] ? 'task--completed' : '' ?>
+                                <?= !$item['completion_date'] && task_near_finish($item['done_date']) ? 'task--important' : '' ?>
                               ">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
-                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
-                                <span class="checkbox__text"><?= htmlspecialchars($item['task']); ?></span>
+                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1"
+                                <?= $item['completion_date'] ? 'checked' : '' ?>
+                                >
+                                <span class="checkbox__text"><?= htmlspecialchars($item['task_name']); ?></span>
                             </label>
                         </td>
 
                         <td class="task__file">
-                            <a class="download-link" href="#">Home.psd</a>
+                            <!-- исли имя файла в таблице пустое, то ссылку не выводим -->
+                            <?= $item['file_name'] ? '<a class="download-link" href="#">'.$item['file_name'].'</a>' : '' ?>
                         </td>
 
-                        <td class="task__date"><?= (htmlspecialchars($item['completion_date']) != null) ? htmlspecialchars($item['completion_date']) : 'Нет'; ?></td>
+                        <td class="task__date"><?= (htmlspecialchars($item['done_date']) != null) ? htmlspecialchars($item['done_date']) : 'Нет'; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </table>

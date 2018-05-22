@@ -6,7 +6,7 @@ function task_count($task_array, $project_name) {
     } else {
         $count = 0;
         foreach ($task_array as $item) {
-            if ($item['project'] === $project_name) {
+            if ($item['project_name'] === $project_name) {
                 $count += 1;
             }
         }
@@ -15,7 +15,7 @@ function task_count($task_array, $project_name) {
 }
 
 // функция-шаблонизатор
-function render_template($template_path, $data) {
+function render_template($template_path, $data = []) {
     if (!file_exists($template_path)) {
         return '';
     } else {
