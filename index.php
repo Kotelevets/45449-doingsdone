@@ -8,8 +8,10 @@ require_once('functions.php');
 // выбор пользователя
 $user_id = 1;
 
-// выбор проекта
-$project_id = 4;
+// проверка на существование параметра запроса с идентификатором проекта
+// если параметр присутствует, то показываем только те задачи, что относятся к этому проекту
+// если параметра нет, то показываем все задачи
+isset($_GET['project_id']) ? $project_id = intval($_GET['project_id']) : $project_id = null;
 
 // подключение к БД
 $connect = mysqli_connect("localhost", "root", "", "doingsdone");
@@ -30,6 +32,20 @@ if ($connect === false) {
         exit();
     }
     $projects = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    // Если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи, 
+    // то вместо содержимого страницы возвращать код ответа 404
+    $cnt = 0;
+    foreach ($projects as $key => $item) {
+        if ($project_id === intval($item['id']) or !isset($_GET['project_id'])) {
+            $cnt++;
+        }  
+    }
+    if ($cnt === 0) {
+        http_response_code(404);
+        print(render_template('templates/error404.php'));
+        exit();
+    };
 
     // выборка списка(массива) задач текущего пользователя с условиями (для выбранного проекта)
     // если проект не указан, то выводим все задачи пользователя
