@@ -34,6 +34,7 @@ CREATE TABLE tasks (
 );
 
 CREATE UNIQUE INDEX email ON users(email);
+CREATE UNIQUE INDEX usrprj ON projects(project_name, user_id);
 
 CREATE INDEX u_mailpass ON users(email, user_pass);
 CREATE INDEX p_user ON projects(user_id);
