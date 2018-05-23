@@ -11,13 +11,14 @@ $user_id = 1;
 // проверка на существование параметра запроса с идентификатором проекта
 // если параметр присутствует, то показываем только те задачи, что относятся к этому проекту
 // если параметра нет, то показываем все задачи
-isset($_GET['project_id']) ? $project_id = intval($_GET['project_id']) : $project_id = null;
+$project_id = isset($_GET['project_id']) ? intval($_GET['project_id']) : null;
 
 // подключение к БД
 $connect = mysqli_connect("localhost", "root", "", "doingsdone");
 
 // если подключение успешно делаем выборки, нет - выводим ошибку
 if ($connect === false) {
+    http_response_code(503);
     print(render_template('templates/error.php'));
     exit();
 } else {
@@ -28,6 +29,7 @@ if ($connect === false) {
     $sql = "SELECT p.id, p.project_name FROM projects p WHERE p.user_id = " . $user_id;
     $result = mysqli_query($connect, $sql);
     if (!$result) {
+        http_response_code(503);
         print(render_template('templates/error.php'));
         exit();
     }
@@ -35,18 +37,12 @@ if ($connect === false) {
 
     // Если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи, 
     // то вместо содержимого страницы возвращать код ответа 404
-    $cnt = 0;
-    foreach ($projects as $key => $item) {
-        if ($project_id === intval($item['id']) or !isset($_GET['project_id'])) {
-            $cnt++;
-        }  
-    }
-    if ($cnt === 0) {
+    if (!array_search($project_id, array_column($projects, 'id')) && isset($_GET['project_id'])) {
         http_response_code(404);
         print(render_template('templates/error404.php'));
         exit();
-    };
-
+    }
+   
     // выборка списка(массива) задач текущего пользователя с условиями (для выбранного проекта)
     // если проект не указан, то выводим все задачи пользователя
     // если указан, то выводим задачи только для выбранного проекта
@@ -55,6 +51,7 @@ if ($connect === false) {
            . (is_int($project_id) ? " and project_id = " . $project_id : "");
     $result = mysqli_query($connect, $sql);
     if (!$result) {
+        http_response_code(503);
         print(render_template('templates/error.php'));
         exit();
     }
@@ -65,6 +62,7 @@ if ($connect === false) {
            ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user_id;
     $result = mysqli_query($connect, $sql);
     if (!$result) {
+        http_response_code(503);
         print(render_template('templates/error.php'));
         exit();
     }
