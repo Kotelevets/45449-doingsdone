@@ -38,7 +38,7 @@
 
                         <td class="task__file">
                             <!-- исли имя файла в таблице пустое, то ссылку не выводим -->
-                            <?= $item['file_name'] ? '<a class="download-link" href="#">'.$item['file_name'].'</a>' : '' ?>
+                            <?= $item['file_name'] ? '<a class="download-link" href="'.$item['file_name'].'">'.$item['file_name'].'</a>' : '' ?>
                         </td>
 
                         <td class="task__date"><?= (htmlspecialchars($item['done_date']) != null) ? htmlspecialchars($item['done_date']) : 'Нет'; ?></td>
