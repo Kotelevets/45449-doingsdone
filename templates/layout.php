@@ -16,7 +16,7 @@
 <div class="page-wrapper">
     <div class="container container--with-sidebar">
         <header class="main-header">
-            <a href="#">
+            <a href="/">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
 
@@ -50,7 +50,11 @@
                             <?= intval($item['id'])   === $project_id &&  is_int($project_id) ? 'main-navigation__list-item--active' : '' ?>
                             <?= $item['project_name'] === 'Все'       && !is_int($project_id) ? 'main-navigation__list-item--active' : '' ?>"
                         >
-                            <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($item['project_name']); ?></a>
+                            <a class="main-navigation__list-item-link" 
+                                href="index.php<?= $item['project_name'] === 'Все' ? '' : '?project_id='.$item['id'] ?>"
+                            >
+                                <?= htmlspecialchars($item['project_name']); ?>
+                            </a>
                             <span class="main-navigation__list-item-count"><?= task_count($tasks, $item['project_name']); ?></span>
                         </li>
                     <?php endforeach; ?>
