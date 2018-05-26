@@ -73,7 +73,8 @@ if ($connect === false) {
 
     // валидация формы для создания новой задачи
     $errors_task = [];
-    $err_task_layout = false;
+    $task_values = [];
+    $err_task_flag = false;
     // если была передача данных в сценарий методом POST
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
@@ -112,9 +113,11 @@ if ($connect === false) {
             }
         }
 
-        // если ошибок нет
+        // если ошибок нет, производим запись в таблицу с задачами
+        // если есть ошибки - сохраняем флаг ошибки, 
+        // и массив с заранее введенными значениями в окне создания задачи
         if (empty($errors_task)) {
-            // производим запись в таблицу с задачами
+
             $sql = "INSERT INTO tasks (creation_date, done_date, task_name, file_name, user_id, project_id) " 
                   ."VALUES (NOW(), ?, ?, ?, ?, ?)";
             $stmt = mysqli_prepare($connect, $sql);
@@ -138,7 +141,10 @@ if ($connect === false) {
                 exit();
             }
         } else {
-            $err_task_layout = true;
+            $err_task_flag = true;
+            $task_values['name']    = $_POST['name'];
+            $task_values['project'] = $_POST['project'];
+            $task_values['date']    = $_POST['date'];
         }
     }
 }
@@ -149,8 +155,9 @@ $main = render_template('templates/index.php', ['tasks' => $tasks_cond]);
 
 // получаем(рендерим) страницу для создания задачи,
 // передаем список проектов, список ошибок
-$create_task = render_template('templates/create_task.php', ['projects'    => $projects,
-                                                             'errors_task' => $errors_task]);
+$create_task = render_template('templates/create_task.php', ['projects'        => $projects,
+                                                             'task_values'     => $task_values,
+                                                             'errors_task'     => $errors_task]);
 
 // рендерим основную страницу, 
 // передаем шаблон, основные данные $main, форму для создания задач,
@@ -158,11 +165,10 @@ $create_task = render_template('templates/create_task.php', ['projects'    => $p
 // список задач и title страницы
 $layout = render_template('templates/layout.php', ['content'     => $main,
                                                    'create_task' => $create_task,
-                                                   'error_task'  => $err_task_layout,
+                                                   'error_task'  => $err_task_flag,
                                                    'projects'    => $projects,
                                                    'project_id'  => $project_id,
                                                    'tasks'       => $tasks_all,
-                                                   'title'       => 'Дела в порядке'
-                                                  ]);
+                                                   'title'       => 'Дела в порядке']);
 // выводим полученную страницу
 print($layout);
