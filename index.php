@@ -73,8 +73,9 @@ if ($connect === false) {
 
     // валидация формы для создания новой задачи
     $errors_task = [];
+    $err_task_layout = false;
     // если была передача данных в сценарий методом POST
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // список обязательных полей, проверяем заполнены или нет
         $required_fields = ['name', 'project'];
@@ -136,6 +137,8 @@ if ($connect === false) {
                 print(render_template('templates/error.php'));
                 exit();
             }
+        } else {
+            $err_task_layout = true;
         }
     }
 }
@@ -144,13 +147,21 @@ if ($connect === false) {
 // передаем список задач и шаблон для основных данных
 $main = render_template('templates/index.php', ['tasks' => $tasks_cond]);
 
+// получаем(рендерим) страницу для создания задачи,
+// передаем список проектов, список ошибок
+$create_task = render_template('templates/create_task.php', ['projects'    => $projects,
+                                                             'errors_task' => $errors_task]);
+
 // рендерим основную страницу, 
-// передаем основные данные $main, список проектов и задач, проект, шаблон и title страницы
-$layout = render_template('templates/layout.php', ['content'     => $main, 
+// передаем шаблон, основные данные $main, форму для создания задач,
+// признак ошибки при создании задач, список проектов, текущий проект, 
+// список задач и title страницы
+$layout = render_template('templates/layout.php', ['content'     => $main,
+                                                   'create_task' => $create_task,
+                                                   'error_task'  => $err_task_layout,
                                                    'projects'    => $projects,
                                                    'project_id'  => $project_id,
                                                    'tasks'       => $tasks_all,
-                                                   'errors_task' => $errors_task,
                                                    'title'       => 'Дела в порядке'
                                                   ]);
 // выводим полученную страницу

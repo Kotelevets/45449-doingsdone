@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
 
-<body <?= count($errors_task) !== 0 ? 'class="overlay"' : '' ?> >
+<body <?= $error_task ? 'class="overlay"' : '' ?> >
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
@@ -116,7 +116,7 @@
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
 
-<?php require_once('templates/create_task.php'); ?>
+<?= $create_task; ?>
 
 </body>
 </html>

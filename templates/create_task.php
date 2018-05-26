@@ -19,7 +19,7 @@
             <select class="form__input <?= isset($errors_task['project']) ? ' form__input--error' : '' ?> form__input--select" name="project" id="project">
                 <?php foreach ($projects as $key => $item) : ?>
                     <?= $item['project_name'] === 'Все' ? '' :
-                        '<option value="'. $item['id'] . '"' . (intval($item['id']) === intval($_POST['project'] ?? 0) ? ' selected' : '') . '>' . $item['project_name'] . '</option>'  
+                        '<option value="' . $item['id'] . '"' . (intval($item['id']) === intval($_POST['project'] ?? 0) ? ' selected' : '') . '>' . $item['project_name'] . '</option>'  
                     ?>
                 <?php endforeach; ?>
             </select>
