@@ -162,8 +162,8 @@ $modal = render_template('templates/create_task.php', ['projects'    => $project
 // признак ошибки при создании задач, список проектов, текущий проект, 
 // список задач и title страницы
 $layout = render_template('templates/layout.php', ['content'     => $main,
-                                                   'create_task' => $create_task,
-                                                   'error_task'  => count($errors_task),
+                                                   'modal'       => $modal,
+                                                   'error_modal' => count($errors_task),
                                                    'projects'    => $projects,
                                                    'project_id'  => $project_id,
                                                    'tasks'       => $tasks_all,
