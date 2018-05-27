@@ -116,7 +116,7 @@
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
 
-<?= $create_task; ?>
+<?= $modal; ?>
 
 </body>
 </html>

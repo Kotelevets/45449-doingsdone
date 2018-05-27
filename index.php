@@ -153,9 +153,9 @@ $main = render_template('templates/index.php', ['tasks' => $tasks_cond]);
 
 // получаем(рендерим) страницу для создания задачи,
 // передаем список проектов, список ошибок
-$create_task = render_template('templates/create_task.php', ['projects'        => $projects,
-                                                             'task_values'     => $task_values,
-                                                             'errors_task'     => $errors_task]);
+$modal = render_template('templates/create_task.php', ['projects'    => $projects,
+                                                       'task_values' => $task_values,
+                                                       'errors_task' => $errors_task]);
 
 // рендерим основную страницу, 
 // передаем шаблон, основные данные $main, форму для создания задач,
