@@ -15,12 +15,12 @@
   <div class="page-wrapper">
     <div class="container">
       <header class="main-header">
-        <a href="#">
+        <a href="/">
           <img src="./img/logo.png" width="153" height="42" alt="Логитип Дела в порядке">
         </a>
 
         <div class="main-header__side">
-          <a class="main-header__side-item button button--transparent" href="#">Войти</a>
+          <a class="main-header__side-item button button--transparent" href="/guest.php">Войти</a>
         </div>
       </header>
 
@@ -34,7 +34,7 @@
             <p>После создания аккаунта, пользователь может начать вносить свои дела, деля их по проектам и указывая сроки.</p>
           </div>
 
-          <a class="welcome__button button" href="./registration.php">Зарегистрироваться</a>
+          <a class="welcome__button button" href="/registration.php">Зарегистрироваться</a>
         </section>
       </div>
     </div>

@@ -15,16 +15,6 @@ if ($connect === false) {
     // указание, какую кодировку использовать
     mysqli_set_charset($connect, "utf8");
 
-    // выборка существующих адресов пользователей из БД
-    $sql =  "SELECT email FROM users";
-    $result = mysqli_query($connect, $sql);
-    if (!$result) {
-        http_response_code(503);
-        print(render_template('templates/error.php'));
-        exit();
-    }
-    $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
     // валидация формы для регистрации
     $errors_reg = [];
     $reg_values = [];
@@ -48,27 +38,58 @@ if ($connect === false) {
 
         // проверяем, что в БД нет такого адреса электронной почты,
         // если есть - выдаем соответствующую ошибку
-        if (!empty($_POST['email']) && in_array($_POST['email'], array_column($users, 'email'))) {
-        	$errors_reg['email'] = 'Пользователь с таким адресом электронной почты уже существует';
+        if (!empty($_POST['email'])) {
+            // выборка существующих адресов пользователей из БД
+            $sql =  "SELECT email FROM users WHERE email = '" . mysqli_real_escape_string($connect, $_POST['email']) ."'";
+            $result = mysqli_query($connect, $sql);
+            if (!$result) {
+                http_response_code(503);
+                print(render_template('templates/error.php'));
+                exit();
+            }
+            $email = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            
+            if (count($email)) {        
+        	   $errors_reg['email'] = 'Пользователь с таким адресом электронной почты уже существует';
+            }
         }
 
         // если ошибок нет
         if (empty($errors_reg)) {
-        	$password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        	
+            // получаем хэш пароля
+            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            
+            // открываем транзакцию
+            mysqli_query($connect, "START TRANSACTION");
+            
             // производим запись в таблицу с пользователями
             $sql = "INSERT INTO users (reg_date, email, user_name, user_pass) " 
                   ."VALUES (NOW(), ?, ?, ?)";
             $stmt = mysqli_prepare($connect, $sql);
             mysqli_stmt_bind_param($stmt, 'sss', $_POST['email'], $_POST['name'], $password);
             $res = mysqli_stmt_execute($stmt);
+            
+            // получаем user_id нового пользователя            
+            $last_uid = mysqli_insert_id($connect);
+            
+            // создаем проекты Все и Входящие
+            $sql = "INSERT INTO projects (project_name, user_id) VALUES 
+                    ('Все',      " . $last_uid . "),        
+                    ('Входящие', " . $last_uid . ")";
+            $res2 = mysqli_query($connect, $sql);
 
-            // если запись в таблицу прошла успешно
-            if ($res) {
-                // переход на Гостевую для входа на сайт
+            // если запись в таблицы прошла успешно
+            if ($res && $res2) {
+                // коммитим транзакцию
+                mysqli_query($connect, "COMMIT");
+                // и переходим на Гостевую для входа на сайт
                 header("Location: /guest.php");   
             } else {
                 // если по каким-либо причинам запись не удалась
-                // возвращаем код ошибки 503 и рендерим страницу с ошибкой
+                // делаем rollback,
+                // и возвращаем код ошибки 503 и рендерим страницу с ошибкой
+                mysqli_query($connect, "ROLLBACK");
                 http_response_code(503);
                 print(render_template('templates/error.php'));
                 exit();
