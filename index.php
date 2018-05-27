@@ -74,7 +74,6 @@ if ($connect === false) {
     // валидация формы для создания новой задачи
     $errors_task = [];
     $task_values = [];
-    $err_task_flag = false;
     // если была передача данных в сценарий методом POST
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
@@ -141,7 +140,6 @@ if ($connect === false) {
                 exit();
             }
         } else {
-            $err_task_flag = true;
             $task_values['name']    = $_POST['name'];
             $task_values['project'] = $_POST['project'];
             $task_values['date']    = $_POST['date'];
@@ -165,7 +163,7 @@ $create_task = render_template('templates/create_task.php', ['projects'        =
 // список задач и title страницы
 $layout = render_template('templates/layout.php', ['content'     => $main,
                                                    'create_task' => $create_task,
-                                                   'error_task'  => $err_task_flag,
+                                                   'error_task'  => count($errors_task),
                                                    'projects'    => $projects,
                                                    'project_id'  => $project_id,
                                                    'tasks'       => $tasks_all,
