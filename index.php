@@ -1,8 +1,12 @@
 <?php
+session_start();
+
 // подключаем файл с функциями
 require_once('functions.php');
+
 // подключение к БД
 $connect = mysqli_connect("localhost", "root", "", "doingsdone");
+
 // если подключение завершилось с ошибкой - 
 // выводим ошибку и останавливаем сценарий
 if ($connect === false) {
@@ -10,101 +14,129 @@ if ($connect === false) {
     print(render_template('templates/error.php'));
     exit();
 }
+
 // выбор часового пояса
 date_default_timezone_set('Europe/Kiev');
+
 // путь к файлам, которые будут загружены
 $file_path = __DIR__.'/';
+
 // указание, какую кодировку использовать
 mysqli_set_charset($connect, "utf8");
+
 // проверка на существование сессии пользователя
-if (!isset($_SESSION)) {
-// если сессия не открыта -
-// проверяем выполнялась ли отправка формы
-// если отправлялась, то подключите шаблон с модальным окном формы входа
-// и выполняем валидацию формы,
-// если не отправлялась - то подключаем шаблон гостевой страницы
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // валидация формы аутентификации пользователя
-    $user_values = [];
-    $errors_user = [];
-    // список обязательных полей, проверяем заполнены или нет
-    $required_fields = ['email', 'password'];
-    foreach ($required_fields as $field) {
-            if (empty($_POST[$field])) {
-                $errors_user[$field] = 'Поле обязательно для заполнения';
-            }
-    }
-    // если поле email заполнено, то проверяем существует ли такой адрес
-    if (!empty($_POST['email'])) {
-        // выборка существующих адресов пользователей из БД
-        $sql =  "SELECT id, email, user_name, user_pass FROM users WHERE email = '" . mysqli_real_escape_string($connect, $_POST['email']) ."'";
-        $result = mysqli_query($connect, $sql);
-        if (!$result) {
-            http_response_code(503);
-            print(render_template('templates/error.php'));
-            exit();
+if (!isset($_SESSION['id'])) {
+    
+    // если сессия не открыта -
+    // проверяем выполнялась ли отправка формы
+    // если отправлялась, то подключите шаблон с модальным окном формы входа
+    // и выполняем валидацию формы,
+    // если не отправлялась - то подключаем шаблон гостевой страницы
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        
+        // валидация формы аутентификации пользователя
+        $user_values = [];
+        $errors_user = [];
+        
+        // список обязательных полей, проверяем заполнены или нет
+        $required_fields = ['email', 'password'];
+        foreach ($required_fields as $field) {
+                if (empty($_POST[$field])) {
+                    $errors_user[$field] = 'Поле обязательно для заполнения';
+                }
         }
-        $user = mysqli_fetch_assoc($result);
-        if (!count($user)) {        
-           // Если в базе не найден указанный email - выводим ошибку
-           $errors_user['email'] = 'Введен несуществующий в системе e-mail';
-        } elseif (!empty($_POST['password']) && password_verify($_POST['password'], $user['user_pass'])) {
-            // если email найден и пароль совпадает, то 
-            // создаем сессию для пользователя
-            session_start();
-            // передаем в сессию данные пользователя
-            $_SESSION['id']        = $user['id'];
-            $_SESSION['email']     = $user['email'];
-            $_SESSION['user_name'] = $user['user_name'];
-            // переход на Главную
-            header("Location: /");
-        } elseif (!empty($_POST['password']) && !password_verify($_POST['password'], $user['user_pass'])) {
-            // если есть email и введен пароль, но проверка пароля неудачна -
-            // то выводим ошибку, о том что пароль неверный
-            $errors_user['password'] = 'Пароль неверный';
-        } 
+        
+        // если поле email заполнено, то проверяем существует ли такой адрес
+        if (!empty($_POST['email'])) {
+            
+            // выборка существующих адресов пользователей из БД
+            $sql =  "SELECT id, email, user_name, user_pass FROM users WHERE email = '" . mysqli_real_escape_string($connect, $_POST['email']) ."'";
+            $result = mysqli_query($connect, $sql);
+            
+            if (!$result) {
+                http_response_code(503);
+                print(render_template('templates/error.php'));
+                exit();
+            }
+            $user = mysqli_fetch_assoc($result);
+            
+            if (!count($user)) {        
+            
+            // Если в базе не найден указанный email - выводим ошибку
+            $errors_user['email'] = 'Введен несуществующий в системе e-mail';
+
+            } elseif (!empty($_POST['password']) && password_verify($_POST['password'], $user['user_pass'])) {
+                
+                // если email найден и пароль совпадает, то 
+                // создаем сессию для пользователя
+                session_start();
+                
+                // передаем в сессию данные пользователя
+                $_SESSION['id']        = $user['id'];
+                $_SESSION['email']     = $user['email'];
+                $_SESSION['user_name'] = $user['user_name'];
+                
+                // переход на Главную
+                header("Location: /");
+
+            } elseif (!empty($_POST['password']) && !password_verify($_POST['password'], $user['user_pass'])) {
+                
+                // если есть email и введен пароль, но проверка пароля неудачна -
+                // то выводим ошибку, о том что пароль неверный
+                $errors_user['password'] = 'Пароль неверный';
+
+            }
+        }
+        
+        $user_values['email']    = $_POST['email'];
+        $user_values['password'] = $_POST['password'];
+        
+        // рендерим гостевую страницу,
+        // передаем шаблон
+        $guest = render_template('templates/guest.php');
+        
+        // рендерим модальное окно с формой входа
+        // передаем шаблон
+        $modal = render_template('templates/auth.php' , ['user_values' => $user_values,
+                                                         'errors_user' => $errors_user]);
+        // рендерим основную страницу,
+        // передаем контент гостевой страницы,
+        // признак для вывода в шаблоне класса body_background в теге <body>,
+        // модальное окно с формой для аутентификации пользователя
+        // и title страницы
+        $layout = render_template('templates/layout.php', ['content'         => $guest,
+                                                           'body_background' => true,
+                                                           'modal'           => $modal,
+                                                           'error_modal'     => count($errors_user),
+                                                           'title'           => 'Дела в порядке - Гостевая']);
+        // выводим страницу
+        print($layout);
+    
+    } else {
+        
+        // рендерим гостевую страницу,
+        // передаем шаблон
+        $guest = render_template('templates/guest.php');
+        
+        // рендерим модальное окно с формой входа
+        // передаем шаблон
+        $modal = render_template('templates/auth.php');
+        
+        // рендерим основную страницу,
+        // передаем контент гостевой страницы,
+        // признак для вывода в шаблоне класса body_background в теге <body>,
+        // модальное окно с формой для аутентификации пользователя
+        // и title страницы
+        $layout = render_template('templates/layout.php', ['content'         => $guest,
+                                                           'body_background' => true,
+                                                           'modal'           => $modal,
+                                                           'title'           => 'Дела в порядке - Гостевая']);
+        // выводим страницу
+        print($layout);
     }
-    $user_values['email']    = $_POST['email'];
-    $user_values['password'] = $_POST['password'];
-    // рендерим гостевую страницу,
-    // передаем шаблон
-    $guest = render_template('templates/guest.php');
-    // рендерим модальное окно с формой входа
-    // передаем шаблон
-    $modal = render_template('templates/auth.php' , ['user_values' => $user_values,
-                                                     'errors_user' => $errors_user]);
-    // рендерим основную страницу,
-    // передаем контент гостевой страницы,
-    // признак для вывода в шаблоне класса body_background в теге <body>,
-    // модальное окно с формой для аутентификации пользователя
-    // и title страницы
-    $layout = render_template('templates/layout.php', ['content'         => $guest,
-                                                       'body_background' => true,
-                                                       'modal'           => $modal,
-                                                       'error_modal'     => count($errors_user),
-                                                       'title'           => 'Дела в порядке - Гостевая']);
-    // выводим страницу
-    print($layout);
+
 } else {
-    // рендерим гостевую страницу,
-    // передаем шаблон
-    $guest = render_template('templates/guest.php');
-    // рендерим модальное окно с формой входа
-    // передаем шаблон
-    $modal = render_template('templates/auth.php');
-    // рендерим основную страницу,
-    // передаем контент гостевой страницы,
-    // признак для вывода в шаблоне класса body_background в теге <body>,
-    // модальное окно с формой для аутентификации пользователя
-    // и title страницы
-    $layout = render_template('templates/layout.php', ['content'         => $guest,
-                                                       'body_background' => true,
-                                                       'modal'           => $modal,
-                                                       'title'           => 'Дела в порядке - Гостевая']);
-    // выводим страницу
-    print($layout);
-}
-} else {
+    
     // выбор пользователя
     $user['id']        = $_SESSION['id'];
     $user['email']     = $_SESSION['email'];
@@ -161,6 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // валидация формы для создания новой задачи
     $errors_task = [];
     $task_values = [];
+    
     // если была передача данных в сценарий методом POST
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -240,7 +273,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $task_values['date']    = $_POST['date'];
         }
     }
-
     // получаем(рендерим) основные данные (отображаем список задач) для страницы,
     // передаем список задач и шаблон для основных данных
     $main = render_template('templates/index.php', ['tasks' => $tasks_cond]);
