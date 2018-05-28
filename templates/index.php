@@ -29,7 +29,10 @@
                               ">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
-                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1"
+                                <!-- если в фильтре Проекты был выбран проект($project_id), то добавляем к задаче &project_id=$project_id -->
+                                <!-- исправляем баг скрипта и шаблона -->
+                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" 
+                                value="<?= $item['id'] ?><?= is_int($project_id) ? '&project_id=' . $item['project_id'] : '' ?>"
                                 <?= $item['completion_date'] ? 'checked' : '' ?>
                                 >
                                 <span class="checkbox__text"><?= htmlspecialchars($item['task_name']); ?></span>

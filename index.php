@@ -26,18 +26,17 @@ mysqli_set_charset($connect, "utf8");
 
 // проверка на существование сессии пользователя
 if (!isset($_SESSION['id'])) {
-    $user = [];
+    
     // если сессия не открыта -
     // проверяем выполнялась ли отправка формы
-    // если отправлялась, то подключите шаблон с модальным окном формы входа
-    // и выполняем валидацию формы,
-    // если не отправлялась - то подключаем шаблон гостевой страницы
+    // если отправлялась, то подключаем шаблон с модальным окном формы входа
+    // и выполняем валидацию формы
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // валидация формы аутентификации пользователя
         $user_values = [];
         $errors_user = [];
-        
+        $user = [];
         // список обязательных полей, проверяем заполнены или нет
         $required_fields = ['email', 'password'];
         foreach ($required_fields as $field) {
@@ -110,6 +109,7 @@ if (!isset($_SESSION['id'])) {
         print($layout);
     
     } else {
+        // если форма не отправлялась - то подключаем шаблон гостевой страницы    
         
         // рендерим гостевую страницу,
         // передаем шаблон
@@ -133,8 +133,9 @@ if (!isset($_SESSION['id'])) {
     }
 
 } else {
-    
-    // выбор пользователя
+    // если пользователь прошел аутентификацию
+    // выбор данных пользователя из данных в сессии
+    $user = [];
     $user['id']        = $_SESSION['id'];
     $user['email']     = $_SESSION['email'];
     $user['user_name'] = $_SESSION['user_name'];
@@ -154,9 +155,10 @@ if (!isset($_SESSION['id'])) {
     }
     $projects = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    // Если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи,
+    // Если значение параметра project_id отсутствует, 
+    // либо если по этому project_id не нашли ни одной записи,
     // то вместо содержимого страницы возвращать код ответа 404
-    if (!array_search($project_id, array_column($projects, 'id')) && isset($_GET['project_id'])) {
+    if (!in_array($project_id, array_column($projects, 'id')) && isset($_GET['project_id'])) {
         http_response_code(404);
         print(render_template('templates/error404.php'));
         exit();
@@ -165,7 +167,7 @@ if (!isset($_SESSION['id'])) {
     // выборка списка(массива) задач текущего пользователя с условиями (для выбранного проекта)
     // если проект не указан, то выводим все задачи пользователя
     // если указан, то выводим задачи только для выбранного проекта
-    $sql =  "SELECT t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id, p.project_name, t.completion_date"
+    $sql =  "SELECT t.id, t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id AS project_id, p.project_name, t.completion_date"
            ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id']
            . (is_int($project_id) ? " and project_id = " . $project_id : "");
     $result = mysqli_query($connect, $sql);
@@ -177,7 +179,7 @@ if (!isset($_SESSION['id'])) {
     $tasks_cond = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     // выборка списка(массива) всех задач текущего пользователя
-    $sql =  "SELECT t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id, p.project_name, t.completion_date"
+    $sql =  "SELECT t.id, t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id AS project_id, p.project_name, t.completion_date"
            ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id'];
     $result = mysqli_query($connect, $sql);
     if (!$result) {
@@ -186,6 +188,47 @@ if (!isset($_SESSION['id'])) {
         exit();
     }
     $tasks_all = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    // проверка на существование параметра запроса с идентификатором задачи
+    // если параметр присутствует, то сохраняем код задачи в $task_id
+    $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : null;
+
+    // Если значение параметра task_id отсутствует, 
+    // либо если по этому task_id не нашли ни одной записи для пользователя,
+    // по выбранному в фильтре проекту
+    // то вместо содержимого страницы возвращать код ответа 404
+    if (!in_array($task_id, array_column($tasks_cond, 'id')) && isset($_GET['task_id'])) {
+        http_response_code(404);
+        print(render_template('templates/error404.php'));
+        exit();
+    }
+
+    // проверка на существование параметра запроса с идентификатором CHECK
+    // если параметр присутствует, то сохраняем значение в $check
+    $check = isset($_GET['check']) ? intval($_GET['check']) : null;
+
+    // если были переданы параметры task_id и check,
+    // то модифицируем поле completion_date
+    // у выбранной задачи, согласно параметру check
+    if ($task_id && isset($check)) {
+
+        $sql =  "UPDATE tasks SET completion_date="
+              . ($check === 1 ? "'" . date("Y-m-d H:i") . "'" : "NULL")
+              . " WHERE id = " . intval($task_id) . "";
+        $result = mysqli_query($connect, $sql);
+        
+        if (!$result) {
+            // скрипт завершился с ошибкой - выводим ошибку
+            http_response_code(503);
+            print(render_template('templates/error.php'));
+            exit();
+        } else {
+            // скрипт завершился без ошибок
+            // переход на Главную, с учетом выбранного проекта
+            header("Location: /index.php" 
+                   . ($project_id ? '?project_id=' . $project_id : ''));
+        }
+    }
 
     // валидация формы для создания новой задачи
     $errors_task = [];
@@ -271,8 +314,9 @@ if (!isset($_SESSION['id'])) {
         }
     }
     // получаем(рендерим) основные данные (отображаем список задач) для страницы,
-    // передаем список задач и шаблон для основных данных
-    $main = render_template('templates/index.php', ['tasks' => $tasks_cond]);
+    // передаем шаблон для основных данных, список задач и выбранный в фильтре проект
+    $main = render_template('templates/index.php', ['tasks'      => $tasks_cond,
+                                                    'project_id' => $project_id]);
 
     // получаем(рендерим) страницу для создания задачи,
     // передаем список проектов, список ошибок
