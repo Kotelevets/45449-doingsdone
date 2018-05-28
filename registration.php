@@ -84,7 +84,7 @@ if ($connect === false) {
                 // коммитим транзакцию
                 mysqli_query($connect, "COMMIT");
                 // и переходим на Гостевую для входа на сайт
-                header("Location: /guest.php");   
+                header("Location: /");   
             } else {
                 // если по каким-либо причинам запись не удалась
                 // делаем rollback,
@@ -104,9 +104,18 @@ if ($connect === false) {
 
 // рендерим страницу регистрации,
 // передаем шаблон, массив с данными из формы регистрации (если были ошибки),
-// тексты ошибок (если были ошибки), заголовок
+// тексты ошибок (если были ошибки)
 $register = render_template('templates/register.php', ['reg_values' => $reg_values,
-                                                       'errors_reg' => $errors_reg,
-	                                                   'title'      => 'Дела в порядке - Регистрация']);
+                                                       'errors_reg' => $errors_reg ]);
+// рендерим модальное окно с формой входа
+// передаем шаблон
+$modal = render_template('templates/auth.php');
+
+// рендерим основную страницу, 
+// передаем шаблон, контент в виде страницы для регистрации
+// и title страницы
+$layout = render_template('templates/layout.php', ['content' => $register,
+                                                   'modal'   => $modal,
+                                                   'title'   => 'Дела в порядке - Регистрация']);
 // выводим страницу
-print($register);
+print($layout);

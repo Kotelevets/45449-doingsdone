@@ -3,7 +3,7 @@
 
     <h2 class="modal__heading">Добавление задачи</h2>
 
-    <form class="form"  action="index.php" enctype="multipart/form-data" method="post">
+    <form class="form" action="index.php" enctype="multipart/form-data" method="post">
         <div class="form__row">
             <label class="form__label" for="name">Название <sup>*</sup></label>
             <?= isset($errors_task['name']) ? '<p class="form__message">' . $errors_task['name'] . '</p>' : '' ?>

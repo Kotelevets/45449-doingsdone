@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
 
-<body <?= $error_modal ? 'class="overlay"' : '' ?> >
+<body class="<?= $body_background ? 'body-background' : '' ?> <?= $error_modal ? 'overlay' : '' ?>" >
 <h1 class="visually-hidden">Дела в порядке</h1>
 
+<?php if (!empty($user)) : ?>
 <div class="page-wrapper">
     <div class="container container--with-sidebar">
         <header class="main-header">
@@ -22,7 +23,7 @@
 
             <div class="main-header__side">
                 <a class="main-header__side-item button button--plus open-modal" href="javascript:;"
-                target="task_add">Добавить задачу</a>
+                 target="task_add">Добавить задачу</a>
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__image">
@@ -30,9 +31,9 @@
                     </div>
 
                     <div class="user-menu__data">
-                        <p>Константин</p>
+                        <p><?= $user['user_name'] ?></p>
 
-                        <a href="#">Выйти</a>
+                        <a href="/templates/logout.php">Выйти</a>
                     </div>
                 </div>
             </div>
@@ -73,6 +74,12 @@
     </div>
 </div>
 
+<?php else : ?>
+
+        <?= $content; ?>
+
+<?php endif; ?>
+
 <footer class="main-footer">
     <div class="container">
         <div class="main-footer__copyright">
@@ -81,8 +88,10 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
+    <?php if (!empty($user)) : ?>
         <a class="main-footer__button button button--plus open-modal" target="task_add"
            href="javascript:;">Добавить задачу</a>
+    <?php endif; ?>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
