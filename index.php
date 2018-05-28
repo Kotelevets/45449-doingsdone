@@ -26,7 +26,7 @@ mysqli_set_charset($connect, "utf8");
 
 // проверка на существование сессии пользователя
 if (!isset($_SESSION['id'])) {
-    
+    $user = [];
     // если сессия не открыта -
     // проверяем выполнялась ли отправка формы
     // если отправлялась, то подключите шаблон с модальным окном формы входа
@@ -68,9 +68,6 @@ if (!isset($_SESSION['id'])) {
             } elseif (!empty($_POST['password']) && password_verify($_POST['password'], $user['user_pass'])) {
                 
                 // если email найден и пароль совпадает, то 
-                // создаем сессию для пользователя
-                session_start();
-                
                 // передаем в сессию данные пользователя
                 $_SESSION['id']        = $user['id'];
                 $_SESSION['email']     = $user['email'];
@@ -97,8 +94,8 @@ if (!isset($_SESSION['id'])) {
         
         // рендерим модальное окно с формой входа
         // передаем шаблон
-        $modal = render_template('templates/auth.php' , ['user_values' => $user_values,
-                                                         'errors_user' => $errors_user]);
+        $modal = render_template('templates/auth.php', ['user_values' => $user_values,
+                                                        'errors_user' => $errors_user]);
         // рендерим основную страницу,
         // передаем контент гостевой страницы,
         // признак для вывода в шаблоне класса body_background в теге <body>,
