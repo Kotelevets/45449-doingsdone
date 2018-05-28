@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
 
-<body><!--class="overlay"-->
+<body <?= $error_modal ? 'class="overlay"' : '' ?> >
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
@@ -115,5 +115,8 @@
 
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
+
+<?= $modal; ?>
+
 </body>
 </html>
