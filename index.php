@@ -266,26 +266,24 @@ if (!isset($_SESSION['id'])) {
     }
 
     // валидация формы для создания новой задачи
-    $errors_task = [];
-    $task_values = [];
-    
-    // если была передача данных в сценарий методом POST
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errors = [];
+    $values = [];
+
+    // если была передача данных в сценарий методом POST из формы создания задачи
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_task'])) {
 
         // список обязательных полей, проверяем заполнены или нет
         $required_fields = ['name', 'project'];
         foreach ($required_fields as $field) {
                 if (empty($_POST[$field])) {
-                    $errors_task[$field] = 'Поле обязательно для заполнения';
+                    $errors[$field] = 'Поле обязательно для заполнения';
                 }
         }
 
         // если был выбран проект, то проверяем,
         // что идентификатор выбранного проекта ссылается на реально существующий проект
         if (isset($_POST['project']) && !in_array($_POST['project'], array_column($projects, 'id'))) {
-            $errors_task['project'] = empty($errors_task['project']) ?
-                                            'Выбран несуществующий проект' :
-                                            $errors_task['project'].'<br/>Выбран несуществующий проект';
+            $errors['project'] = 'Выбран несуществующий проект';
         }
 
         // проверка содержимого поля «Срок выполнения» 
@@ -293,13 +291,9 @@ if (!isset($_SESSION['id'])) {
         // и далее, проверка, что указанная дата реальна в принципе
         // (исключение ситуаций с 2018-06-31 или 2018-02-29 ит.п.)
         if (!empty($_POST['date']) && !preg_match("/^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/", $_POST['date'], $matches)) {
-            $errors_task['date'] = empty($errors_task['date']) ?
-                                         'Введите дату в формате «ГГГГ-ММ-ДД ЧЧ:ММ»' :
-                                         $errors_task['project'].'<br/>Введите дату в формате «ГГГГ-ММ-ДД ЧЧ:ММ»';
+            $errors['date'] = 'Введите дату в формате «ГГГГ-ММ-ДД ЧЧ:ММ»';
         } elseif (!empty($_POST['date']) && !checkdate($matches[2], $matches[3], $matches[1])) {
-            $errors_task['date'] = empty($errors_task['date']) ? 
-                                         'Введите правильную дату' :
-                                         $errors_task['project'].'<br/>Введите правильную дату';
+            $errors['date'] = 'Введите правильную дату';
         }
         $date = !empty($_POST['date']) ? $_POST['date'] : null;
 
@@ -309,16 +303,14 @@ if (!isset($_SESSION['id'])) {
         if (isset($_FILES['preview']) && !empty($_FILES['preview']['name'])) {
             $file = $_FILES['preview']['name'];
             if (file_exists ($file_path . $file)) {
-                $errors_task['file'] = empty($errors_task['file']) ? 
-                                             'Файл уже существует на сайте, укажите другое имя файла' :
-                                             $errors_task['project'].'<br/>Файл уже существует на сайте, укажите другое имя файла';
+                $errors['file'] = 'Файл уже существует на сайте, укажите другое имя файла';
             }
         }
 
         // если ошибок нет, производим запись в таблицу с задачами
         // если есть ошибки - сохраняем флаг ошибки,
         // и массив с заранее введенными значениями в окне создания задачи
-        if (empty($errors_task)) {
+        if (empty($errors)) {
 
             $sql = "INSERT INTO tasks (creation_date, done_date, task_name, file_name, user_id, project_id) "
                   ."VALUES (NOW(), ?, ?, ?, ?, ?)";
@@ -343,9 +335,50 @@ if (!isset($_SESSION['id'])) {
                 exit();
             }
         } else {
-            $task_values['name']    = $_POST['name'];
-            $task_values['project'] = $_POST['project'];
-            $task_values['date']    = $_POST['date'];
+            $values['name']    = $_POST['name'];
+            $values['project'] = $_POST['project'];
+            $values['date']    = $_POST['date'];
+        }
+    }
+
+    // если была передача данных в сценарий методом POST из формы создания проекта
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_project'])) {
+
+        // проверяем заполнен проект или нет
+        if (empty($_POST['name'])) {
+            $errors['project_name'] = 'Поле обязательно для заполнения';
+        }
+
+        // если был заполнен проект, то проверяем,
+        // что проекта с указанным именем нет в БД для пользователя на текущий момент
+        if (isset($_POST['project']) && in_array($_POST['name'], array_column($projects, 'project_name'))) {
+            $errors['project_name'] = 'Выбран уже существующий проект<br/>Введите другое название проекта';
+        }
+
+        // если ошибок нет, производим запись в таблицу с проектами
+        // если есть ошибки - сохраняем массив с заранее введенным 
+        // значением в окне создания проекта
+        if (empty($errors)) {
+
+            $sql = "INSERT INTO projects (project_name, user_id) "
+                  ."VALUES (?, ?)";
+            $stmt = mysqli_prepare($connect, $sql);
+            mysqli_stmt_bind_param($stmt, 'si', $_POST['name'], intval($user['id']));
+            $res = mysqli_stmt_execute($stmt);
+
+            // если запись в таблицу прошла успешно
+            if ($res) {
+                // переход на Главную
+                header("Location: /");
+            } else {
+                // если по каким-либо причинам запись не удалась
+                // возвращаем код ошибки 503 и рендерим страницу с ошибкой
+                http_response_code(503);
+                print(render_template('templates/error.php'));
+                exit();
+            }
+        } else {
+            $values['project_name'] = $_POST['name'];
         }
     }
 
@@ -359,9 +392,9 @@ if (!isset($_SESSION['id'])) {
 
     // получаем(рендерим) страницу для создания задачи,
     // передаем список проектов, список ошибок
-    $modal = render_template('templates/create_task.php', ['projects'    => $projects,
-                                                           'task_values' => $task_values,
-                                                           'errors_task' => $errors_task]);
+    $modal = render_template('templates/modals.php', ['projects' => $projects,
+                                                      'values'   => $values,
+                                                      'errors'   => $errors]);
 
     // рендерим основную страницу,
     // передаем шаблон, основные данные $main, форму для создания задач,
@@ -370,7 +403,7 @@ if (!isset($_SESSION['id'])) {
     $layout = render_template('templates/layout.php', ['user'                => $user,
                                                        'content'             => $main,
                                                        'modal'               => $modal,
-                                                       'error_modal'         => count($errors_task),
+                                                       'error_modal'         => count($errors),
                                                        'projects'            => $projects,
                                                        'project_id'          => $project_id,
                                                        'tasks'               => $tasks_all,
