@@ -142,8 +142,34 @@ if (!isset($_SESSION['id'])) {
 
     // проверка на существование параметра запроса show_completed
     // если параметр присутствует, то сохраняем в $show_completed
-    // если параметр не указан, то по умолчанию показываем все задачи
-    $show_completed = isset($_GET['show_completed']) ? intval($_GET['show_completed']) : 1;
+    // если параметр не указан, то по умолчанию 
+    // показываем только невыполненные задачи (п.4.1 ТЗ)
+    $show_completed = isset($_GET['show_completed']) ? intval($_GET['show_completed']) : 0;
+
+    // проверка на существование параметра запроса task_filter
+    // если параметр присутствует, то сохраняем в $task_filter
+    // если параметр не указан, то по умолчанию
+    // показываем все задачи
+    $task_filter = isset($_GET['task_filter']) ? intval($_GET['task_filter']) : 1;
+
+    // формируем условие для выборки задач
+    // по переданному в параметре $task_filter фильтру, 
+    // по умолчанию выбираем все задачи
+    $sql_filter = '';
+    switch ($task_filter) {
+        // 
+        case 2:
+            $sql_filter = ' and done_date = curdate() ';
+            break;
+        
+        case 3:
+            $sql_filter = ' and done_date = adddate(curdate(), 1) ';
+            break;
+        
+        case 4:
+            $sql_filter = ' and completion_date is null and done_date < curdate() ';
+            break;
+    }
 
     // проверка на существование параметра запроса с идентификатором проекта
     // если параметр присутствует, то показываем только те задачи, что относятся к этому проекту
@@ -173,8 +199,9 @@ if (!isset($_SESSION['id'])) {
     // если проект не указан, то выводим все задачи пользователя
     // если указан, то выводим задачи только для выбранного проекта
     $sql =  "SELECT t.id, t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id AS project_id, p.project_name, t.completion_date"
-           ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id']
-           . (is_int($project_id) ? " and project_id = " . $project_id : "");
+           ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id'] . $sql_filter
+           . (is_int($project_id) ? " and project_id = " . $project_id : "")
+           ." ORDER BY date(done_date) DESC, completion_date DESC";
     $result = mysqli_query($connect, $sql);
     if (!$result) {
         http_response_code(503);
@@ -327,6 +354,7 @@ if (!isset($_SESSION['id'])) {
     $main = render_template('templates/index.php', ['tasks'               => $tasks_cond,
                                                     'project_id'          => $project_id,
                                                     'show_complete_tasks' => $show_completed,
+                                                    'task_filter'         => $task_filter,
                                                     'link'                => $link]);
 
     // получаем(рендерим) страницу для создания задачи,
