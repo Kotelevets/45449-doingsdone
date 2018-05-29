@@ -140,6 +140,11 @@ if (!isset($_SESSION['id'])) {
     $user['email']     = $_SESSION['email'];
     $user['user_name'] = $_SESSION['user_name'];
 
+    // проверка на существование параметра запроса show_completed
+    // если параметр присутствует, то сохраняем в $show_completed
+    // если параметр не указан, то по умолчанию показываем все задачи
+    $show_completed = isset($_GET['show_completed']) ? intval($_GET['show_completed']) : 1;
+
     // проверка на существование параметра запроса с идентификатором проекта
     // если параметр присутствует, то показываем только те задачи, что относятся к этому проекту
     // если параметра нет, то показываем все задачи
@@ -207,6 +212,9 @@ if (!isset($_SESSION['id'])) {
     // если параметр присутствует, то сохраняем значение в $check
     $check = isset($_GET['check']) ? intval($_GET['check']) : null;
 
+    $link = '?show_completed=' . $show_completed
+          . (isset($project_id) ? '&project_id=' . $project_id : '');
+
     // если были переданы параметры task_id и check,
     // то модифицируем поле completion_date
     // у выбранной задачи, согласно параметру check
@@ -226,7 +234,7 @@ if (!isset($_SESSION['id'])) {
             // скрипт завершился без ошибок
             // переход на Главную, с учетом выбранного проекта
             header("Location: /index.php" 
-                   . ($project_id ? '?project_id=' . $project_id : ''));
+                   . $link);
         }
     }
 
@@ -313,10 +321,13 @@ if (!isset($_SESSION['id'])) {
             $task_values['date']    = $_POST['date'];
         }
     }
+
     // получаем(рендерим) основные данные (отображаем список задач) для страницы,
     // передаем шаблон для основных данных, список задач и выбранный в фильтре проект
-    $main = render_template('templates/index.php', ['tasks'      => $tasks_cond,
-                                                    'project_id' => $project_id]);
+    $main = render_template('templates/index.php', ['tasks'               => $tasks_cond,
+                                                    'project_id'          => $project_id,
+                                                    'show_complete_tasks' => $show_completed,
+                                                    'link'                => $link]);
 
     // получаем(рендерим) страницу для создания задачи,
     // передаем список проектов, список ошибок
@@ -328,14 +339,15 @@ if (!isset($_SESSION['id'])) {
     // передаем шаблон, основные данные $main, форму для создания задач,
     // признак ошибки при создании задач, список проектов, текущий проект,
     // список задач и title страницы
-    $layout = render_template('templates/layout.php', ['user'        => $user,
-                                                       'content'     => $main,
-                                                       'modal'       => $modal,
-                                                       'error_modal' => count($errors_task),
-                                                       'projects'    => $projects,
-                                                       'project_id'  => $project_id,
-                                                       'tasks'       => $tasks_all,
-                                                       'title'       => 'Дела в порядке']);
+    $layout = render_template('templates/layout.php', ['user'                => $user,
+                                                       'content'             => $main,
+                                                       'modal'               => $modal,
+                                                       'error_modal'         => count($errors_task),
+                                                       'projects'            => $projects,
+                                                       'project_id'          => $project_id,
+                                                       'tasks'               => $tasks_all,
+                                                       'show_complete_tasks' => $show_completed,
+                                                       'title'               => 'Дела в порядке']);
     // выводим полученную страницу
     print($layout);
 }

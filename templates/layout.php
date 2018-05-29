@@ -52,7 +52,7 @@
                             <?= $item['project_name'] === 'Все'       && !is_int($project_id) ? 'main-navigation__list-item--active' : '' ?>"
                         >
                             <a class="main-navigation__list-item-link" 
-                                href="index.php<?= $item['project_name'] === 'Все' ? '' : '?project_id='.$item['id'] ?>"
+                                href="index.php<?= '?show_completed='.$show_complete_tasks ?><?= ($item['project_name'] === 'Все' ? '' : '&project_id='.$item['id']) ?>"
                             >
                                 <?= htmlspecialchars($item['project_name']); ?>
                             </a>

@@ -40,9 +40,13 @@ document.body.addEventListener('click', function (event) {
 var $checkbox = document.getElementsByClassName('show_completed')[0];
 
 $checkbox.addEventListener('change', function (event) {
+  var el = event.target;                                                   // added by Kotelevets
   var is_checked = +event.target.checked;
+  var project = el.getAttribute('value');                                  // added by Kotelevets
 
-  window.location = '/index.php?show_completed=' + is_checked;
+  // window.location = '/index.php?show_completed=' + is_checked;          // commented by Kotelevets
+  var url = '/index.php?show_completed=' + is_checked + project;           // added by Kotelevets
+  window.location = url;                                                   // added by Kotelevets
 });
 
 var $taskCheckboxes = document.getElementsByClassName('tasks')[0];
@@ -50,11 +54,13 @@ var $taskCheckboxes = document.getElementsByClassName('tasks')[0];
 $taskCheckboxes.addEventListener('change', function (event) {
   if (event.target.classList.contains('task__checkbox')) {
     var el = event.target;
-
     var is_checked = +el.checked;
-    var task_id = el.getAttribute('value');
+   
+    //var task_id = el.getAttribute('value');                              // commented by Kotelevets
+    var link = el.getAttribute('value');                                   // added by Kotelevets
 
-    var url = '/index.php?task_id=' + task_id + '&check=' + is_checked;
+    //var url = '/index.php?task_id=' + task_id + '&check=' + is_checked;  // commented by Kotelevets
+    var url = '/index.php' + link + '&check=' + is_checked;                // added by Kotelevets
     window.location = url;
   }
 });
