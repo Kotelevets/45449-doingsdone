@@ -1,7 +1,7 @@
 <h2 class="content__main-heading">Список задач</h2>
 
-                <form class="search-form" action="index.html" method="post">
-                    <input class="search-form__input" type="text" name="" value="" placeholder="Поиск по задачам">
+                <form class="search-form" action="index.php" method="get">
+                    <input class="search-form__input" type="text" name="search" value="" placeholder="Поиск по задачам">
 
                     <input class="search-form__submit" type="submit" name="" value="Искать">
                 </form>
@@ -26,7 +26,9 @@
 
                 <table class="tasks">
                 <?php foreach ($tasks as $item) : ?>
-                    <?php if ($show_complete_tasks === 1 || ($show_complete_tasks !== 1 && !$item['completion_date']) ) : ?>
+                    
+                    <?php if ($show_complete_tasks === 1 || !empty($search) || ($show_complete_tasks !== 1 && !$item['completion_date'])) : ?>
+
                         <tr class="tasks__item task 
                                     <?= $item['completion_date'] ? 'task--completed' : '' ?>
                                     <?= !$item['completion_date'] && task_near_finish($item['done_date']) ? 'task--important' : '' ?>
@@ -50,6 +52,19 @@
 
                             <td class="task__date"><?= (htmlspecialchars($item['done_date']) != null) ? htmlspecialchars($item['done_date']) : 'Нет'; ?></td>
                         </tr>
+
                     <?php endif; ?>
+
                 <?php endforeach; ?>
+
+                <?php if (empty($tasks) && !empty($search)) : ?>
+
+                        <tr class="tasks__item task">
+                            <td class="task__select">
+                               <b>По вашему запросу "<?= $search ?>" задачи не найдены</b>
+                            </td>
+                        </tr>
+
+                <?php endif; ?>
+
                 </table>

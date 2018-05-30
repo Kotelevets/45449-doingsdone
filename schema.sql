@@ -41,3 +41,5 @@ CREATE INDEX p_user ON projects(user_id);
 CREATE INDEX t_description ON tasks(task_name);
 CREATE INDEX t_completion ON tasks(completion_date);
 CREATE INDEX t_proj_user ON tasks(project_id, user_id);
+
+CREATE FULLTEXT INDEX task_ft_search ON tasks(task_name);
