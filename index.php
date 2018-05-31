@@ -171,6 +171,10 @@ if (!isset($_SESSION['id'])) {
             break;
     }
 
+    // проверка на существование параметра запроса search
+    // если параметр присутствует, то сохраняем в $search
+    $search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
     // проверка на существование параметра запроса с идентификатором проекта
     // если параметр присутствует, то показываем только те задачи, что относятся к этому проекту
     // если параметра нет, то показываем все задачи
@@ -195,14 +199,31 @@ if (!isset($_SESSION['id'])) {
         exit();
     }
 
+    // формируем выборку задач в зависимости от параметра search
+    if (empty($search)) {
+    
+    // если параметр search не передавался, то
     // выборка списка(массива) задач текущего пользователя с условиями (для выбранного проекта)
     // если проект не указан, то выводим все задачи пользователя
     // если указан, то выводим задачи только для выбранного проекта
-    $sql =  "SELECT t.id, t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id AS project_id, p.project_name, t.completion_date"
-           ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id'] . $sql_filter
-           . (is_int($project_id) ? " and project_id = " . $project_id : "")
-           ." ORDER BY date(done_date) DESC, completion_date DESC";
-    $result = mysqli_query($connect, $sql);
+        $sql = "SELECT t.id, t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id AS project_id, p.project_name, t.completion_date"
+              ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id'] . $sql_filter
+              . (is_int($project_id) ? " and project_id = " . $project_id : "")
+              ." ORDER BY date(done_date) DESC, completion_date DESC";
+        $result = mysqli_query($connect, $sql);
+
+    } else {
+
+    // если параметр search был передан, то
+    // ищем задачу по имени для указанной строки
+        $sql = "SELECT t.id, t.task_name, t.file_name, date_format(t.done_date, '%d.%m.%Y') AS done_date, p.id AS project_id, p.project_name, t.completion_date"
+              ."  FROM tasks t JOIN projects p ON t.project_id = p.id where t.user_id = " . $user['id']
+              ."   AND MATCH (t.task_name) AGAINST ('". $search ."')"
+              ." ORDER BY date(done_date) DESC, completion_date DESC";
+        $result = mysqli_query($connect, $sql);
+
+    }
+
     if (!$result) {
         http_response_code(503);
         print(render_template('templates/error.php'));
@@ -388,6 +409,7 @@ if (!isset($_SESSION['id'])) {
                                                     'project_id'          => $project_id,
                                                     'show_complete_tasks' => $show_completed,
                                                     'task_filter'         => $task_filter,
+                                                    'search'              => $search,
                                                     'link'                => $link]);
 
     // получаем(рендерим) страницу для создания задачи,
