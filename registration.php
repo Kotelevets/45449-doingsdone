@@ -2,6 +2,7 @@
 
 // подключаем файл с функциями
 require_once('functions.php');
+require_once('vendor/autoload.php');
 
 // подключение к БД
 $connect = mysqli_connect("localhost", "root", "", "doingsdone");

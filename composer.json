@@ -1,0 +1,13 @@
+{
+    "name": "kotelevets/doingsdone",
+    "description": "Scheduler Site",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "kotya.aa",
+            "email": "kotya.aa@gmail.com"
+        }
+    ],
+    "require": {}
+}
